@@ -85,9 +85,12 @@ enviroment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).  The
 Virtual Machine can be downloaded
 [here](https://drive.google.com/file/d/0BxIzRxMoQ-57RnFxNmN4cHFxWk0/view?usp=sharing).
 The account credentials to log on to the Linux installation on the virtual
-machine are
-user: tuf
-password: password
+machine are:
+
+```
+**user**: tuf
+**password**: password
+```
 
 You can activate the 'tufenv' environment as follows:
 
@@ -548,9 +551,36 @@ client knows about.
 
 
 ### Indefinite Freeze Attack ###
-An attacker continues to present a software update system with the same files
-the client has already seen. The result is that the client does not know that
-new files are available.
+In an indefinite freeze attack, an attacker continues to present a software
+update system with the same files the client has already seen. The result is
+that the client does not know that new files are available.   Although the
+client would be unable to prevent an attacker or compromised repository from
+feeding it stale metadata, it can at least detect when an attacker is doing so
+indefinitely.  The signed metadata used by TUF contains an "expires" field that
+indicates when the expired metadata should no longer be trusted.
+
+In the following simulation, the client first tries to perform an update.
+
+```Bash
+$ python basic_client.py --repo http://localhost:8001 
+```
+
+According to the logger (`tuf.log` file in the current working directory),
+everything appears to be up-to-date.  The remove server should also show that
+the client retrieved only the timestamp.json file.  Let's suppose now that an
+attacker continues to feed our client the same stale metadata.  If we were to
+move the time to a future date that would cause metadata to expire, the TUF
+framework should raise an exception or error to indicate that the metadata
+should no longer be trusted.
+
+```Bash
+$ sudo date -s '2080-12-25 12:34:56'
+Wed Dec 25 12:34:56 EST 2080
+
+$ python basic_client.py --repo http://localhost:8001
+Error: No working mirror was found:
+  u'localhost:8001': ExpiredMetadataError(u"Metadata u'root' expired on Tue Jan  1 00:00:00 2030 (UTC).",)
+```
 
 
 ### Endless Data Attack ###
