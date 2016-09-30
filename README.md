@@ -15,9 +15,8 @@
   - [Delegations](#delegations)
   - [Wrap-up](#wrap-up)
 - [How to Perform an Update](#how-to-perform-an-update)
-- [Blocking Malicious Updates](#blocking-malicious-updates)
+- [Blocking Malicious Update](#blocking-malicious-update)
   - [Arbitrary Package Attack](#arbitrary-package-attack) 
-  - [Replay Attack](#replay-attack)
 
 ## How to Create and Modify a TUF Repository ##
 
@@ -473,5 +472,3 @@ file4.txt
 ## Blocking Malicious Updates ##
 
 ### Arbitrary Package Attack ###
-
-### Replay Attack ###
