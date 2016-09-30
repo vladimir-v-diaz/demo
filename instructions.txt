@@ -1,0 +1,83 @@
+from tuf.repository_tool import *
+
+generate_and_write_rsa_keypair("keystore/root_key", bits=2048, password="password")
+generate_and_write_rsa_keypair("keystore/root_key2")
+
+public_root_key = import_rsa_publickey_from_file("keystore/root_key.pub")
+generate_and_write_ed25519_keypair('keystore/ed25519_key')
+public_ed25519_key = import_ed25519_publickey_from_file('keystore/ed25519_key.pub')
+
+repository = create_new_repository("repository/")
+repository.root.add_verification_key(public_root_key)
+repository.root.keys
+public_root_key2 = import_rsa_publickey_from_file("keystore/root_key2.pub")
+repository.root.add_verification_key(public_root_key2)
+repository.root.threshold = 2
+private_root_key2 = import_rsa_privatekey_from_file("keystore/root_key2", password="password")
+repository.root.load_signing_key(private_root_key)
+repository.root.load_signing_key(private_root_key2)
+repository.dirty_roles()
+repository.status()
+
+import datetime
+generate_and_write_rsa_keypair("keystore/targets_key", password="password")
+generate_and_write_rsa_keypair("keystore/snapshot_key", password="password")
+generate_and_write_rsa_keypair("keystore/timestamp_key", password="password")
+repository.targets.add_verification_key(import_rsa_publickey_from_file("keystore/targets_key.pub"))
+repository.snapshot.add_verification_key(import_rsa_publickey_from_file("keystore/snapshot_key.pub"))
+repository.timestamp.add_verification_key(import_rsa_publickey_from_file("keystore/timestamp_key.pub"))
+private_targets_key = import_rsa_privatekey_from_file("kestore/targets_key")
+private_snapshot_key = import_rsa_privatekey_from_file("keystore/snapshot_key")
+private_timestamp_key = import_rsa_privatekey_from_file("keystore/timestamp_key")
+repository.targets.load_signing_key(private_targets_key)
+repository.snapshot.load_signing_key(private_snapshot_key)
+repository.timestamp.load_signing_key(private_timestamp_key)
+repository.writeall()
+
+
+$ cd repository/targets/
+$ echo 'file1' > file1.txt
+$ echo 'file2' > file2.txt
+$ echo 'file3' > file3.txt
+$ mkdir myproject; echo 'file4' > myproject/file4.txt
+
+
+from tuf.repository_tool import *
+import os
+repository = load_repository("repository/")
+list_of_targets = repository.get_filepaths_in_directory("repository/targets/",
+                                                        recursive_walk=False, followlinks=True)
+repository.targets.add_targets(list_of_targets)
+
+private_targets_key = import_rsa_privatekey_from_file("keystore/targets_key")
+repository.targets.load_signing_key(private_targets_key)
+private_snapshot_key = import_rsa_privatekey_from_file("keystore/snapshot_key")
+repository.snapshot.load_signing_key(private_snapshot_key)
+private_timestamp_key = import_rsa_privatekey_from_file("keystore/timestamp_key")
+repository.timestamp.load_signing_key(private_timestamp_key)
+repository.dirty_roles()
+repository.writeall()
+
+generate_and_write_rsa_keypair("keystore/django_key", bits=2048, password="password")
+public_django_key = import_rsa_publickey_from_file("keystore/django_key.pub")
+repository.targets.delegate("django", [public_django_key], [])
+private_django_key = import_rsa_privatekey_from_file("keystore/django_key")
+repository.targets("django").load_signing_key(private_django_key)
+repository.targets("django").version = 2
+repository.dirty_roles()
+repository.writeall()
+
+cp -r "repository/metadata.staged/" "repository/metadata/"
+
+create_tuf_client_directory("repository/", "client/")
+
+cd "repository/"; python -m SimpleHTTPServer 8001
+
+cd "client/"
+python basic_client.py --repo http://localhost:8001
+
+mv 'repository/targets/file3.txt 'repository/targets/file3.txt.backup'
+echo 'bad_target' > 'repository/targets/file3.txt'
+
+python basic_client.py --repo http://localhost:8001
+
