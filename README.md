@@ -15,8 +15,8 @@
   - [Wrap-up](#wrap-up)
 - [How to Perform an Update](#how-to-perform-an-update)
 - [Blocking Malicious Updates](#blocking-malicious-updates)
-  - [Arbitrary](#arbitrary) 
-  - [Replay](#replay)
+  - [Arbitrary Package Attack](#arbitrary) 
+  - [Replay Attack](#replay)
 
 ## How to Create and Modify a TUF Repository ##
 
