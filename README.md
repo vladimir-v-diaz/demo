@@ -277,16 +277,16 @@ repository.
 
 ```Bash
 # Create and save target files to the targets directory of the repository.
-$ cd /path/to/repository/targets/
+$ cd repository/targets/
 $ echo 'file1' > file1.txt
 $ echo 'file2' > file2.txt
 $ echo 'file3' > file3.txt
-$ mkdir django; echo 'file4' > django/file4.txt
+$ mkdir myproject; echo 'file4' > myproject/file4.txt
 ```
 
 With the target files available on the `targets/` directory of the repository,
-the `add_targets()` method of a Targets role can be called to add the target to
-metadata.
+the `add_targets()` method of a Targets role can be called to add the target
+files to metadata.
 
 ```python
 >>> from tuf.repository_tool import *
@@ -308,16 +308,6 @@ metadata.
 # target paths added to a role must be relative to the targets directory,
 # otherwise an exception is raised.
 >>> repository.targets.add_targets(list_of_targets)
-
-# Individual target files may also be added to roles, including custom data
-# about the target.  In the example below, file permissions of the target
-# (octal number specifying file access for owner, group, others (e.g., 0755) is
-# added alongside the default fileinfo.  All target objects in metadata include
-# the target's filepath, hash, and length.
->>> target3_filepath = "/path/to/repository/targets/file3.txt"
->>> octal_file_permissions = oct(os.stat(target3_filepath).st_mode)[4:]
->>> custom_file_permissions = {'file_permissions': octal_file_permissions}
->>> repository.targets.add_target(target3_filepath, custom_file_permissions)
 ```
 
 The private keys of roles affected by the changes above must now be imported and
@@ -329,7 +319,7 @@ metadata.  `snapshot.json` keys must be loaded and its metadata signed because
 ```Python
 # The private key of the updated targets metadata must be loaded before it can
 # be signed and written (Note the load_repository() call above).
->>> private_targets_key =  import_rsa_privatekey_from_file("/path/to/targets_key")
+>>> private_targets_key = import_rsa_privatekey_from_file("keystore/targets_key")
 Enter a password for the encrypted RSA key:
 
 >>> repository.targets.load_signing_key(private_targets_key)
@@ -344,9 +334,13 @@ Enter a password for the encrypted RSA key:
 Enter a password for the encrypted RSA key:
 >>> repository.timestamp.load_signing_key(private_timestamp_key)
 
+# Which roles are dirty?
+>>> repository.dirty_roles()
+Dirty roles: ['timestamp', 'snapshot', 'targets']
+
 # Generate new versions of the modified top-level metadata (targets, snapshot,
 # and timestamp).
->>> repository.write()
+>>> repository.writeall()
 ```
 
 ### Delegations ###
@@ -368,38 +362,33 @@ targets and generate signed metadata.
 ```python
 # Continuing from the previous section . . .
 
-# Generate a key for a new delegated role named "unclaimed".
->>> generate_and_write_rsa_keypair("/path/to/unclaimed_key", bits=2048, password="password")
->>> public_unclaimed_key = import_rsa_publickey_from_file("/path/to/unclaimed_key.pub")
+# Generate a key for a new delegated role named "django".
+>>> generate_and_write_rsa_keypair("keystore/django_key", bits=2048, password="password")
+>>> public_django_key = import_rsa_publickey_from_file("keystore/django_key.pub")
 
-# Make a delegation from "targets" to "unclaimed", initially containing zero
+# Make a delegation from "targets" to "django", initially containing zero
 # targets.
 # delegate(rolename, list_of_public_keys, list_of_file_paths, threshold,
 #          restricted_paths, path_hash_prefixes)
->>> repository.targets.delegate("unclaimed", [public_unclaimed_key], [])
+>>> repository.targets.delegate("django", [public_django_key], [])
 
-# Load the private key of "unclaimed" so that signatures are later added and
+# Load the private key of "django" so that signatures are later added and
 # valid metadata is created.
->>> private_unclaimed_key = import_rsa_privatekey_from_file("/path/to/unclaimed_key")
+>>> private_django_key = import_rsa_privatekey_from_file("keystore/django_key")
 Enter a password for the encrypted RSA key:
 
->>> repository.targets("unclaimed").load_signing_key(private_unclaimed_key)
+>>> repository.targets("django").load_signing_key(private_django_key)
 
 # Update an attribute of the unclaimed role.
->>> repository.targets("unclaimed").version = 2
+>>> repository.targets("django").version = 2
 
-# Delegations may also be nested.  Create the delegated role "django"
-# (delegated from "unclaimed"), where it initially contains zero targets and
-# future targets are restricted to a particular directory.
->>> repository.targets("unclaimed").delegate("django", [public_unclaimed_key], [],
-                                         restricted_paths=["/path/to/repository/targets/django/*"])
->>> repository.targets("django").load_signing_key(private_unclaimed_key)
->>> repository.targets("django").add_target("/path/to/repository/targets/django/file4.txt")
->>> repository.targets("django").compressions = ["gz"]
+# Dirty roles?
+repository.dirty_roles()
+Dirty roles: ['timestamp', 'snapshot', 'targets', 'django']
 
-#  Write the metadata of "unclaimed", "django", "root", "targets", "snapshot,
+#  Write the metadata of "django", "root", "targets", "snapshot,
 # and "timestamp".
->>> repository.write()
+>>> repository.writeall()
 ```
 
 #### Wrap-up ####
@@ -418,7 +407,7 @@ Repository maintainers may push final changes to the "live" repository by
 copying the staged directory to its destination. 
 ```Bash
 # Copy the staged metadata directory changes to the live repository.
-$ cp -r "/path/to/repository/metadata.staged/" "/path/to/repository/metadata/"
+$ cp -r "repository/metadata.staged/" "repository/metadata/"
 ```
 
 ## How to Perform an Update ##
