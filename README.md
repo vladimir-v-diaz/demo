@@ -4,8 +4,9 @@
 - [How to Create and Modify a TUF Repository](#how-to-create-and-modify-a-tuf-repository)
   - [Overview](#overview)
   - [Keys](#keys)
-    - [Create Ed25519 Keys](#create-e25519-keys)
-    - [Import Ed25519 Keys](#import-ed25519-keys)
+    - [Create RSA Keys](#create-rsa-keys)
+    - [Import RSA Keys](#import-rsa-keys)
+    - [Create and Import Ed25519 Keys](#create-and-import-ed25519-keys)
   - [Create Top-level Metadata](#create-top-level-metadata)
     - [Create Root](#create-root)
     - [Create Timestamp, Snapshot, Targets](#create-timestamp-snapshot-targets)
@@ -28,10 +29,10 @@ update system.  The [tuf.client.updater](client/README.md) module assists in
 integrating TUF on the client side.  Second, the repository on the server side
 must be modified to include a minimum of four top-level metadata (root.json,
 targets.json, snapshot.json, timestamp.json).  No additional software is
-required to convert a repository to a TUF one.  The repository tool to generate
-the required TUF metadata is the focus of this demo.  In addition, the update
-procedure of a TUF integration is demonstrated and some malicious updates are
-attempted. 
+required to convert a repository to a TUF one.  The repository tool that
+generates the required TUF metadata is the focus of this demo.  In addition,
+the update procedure of a TUF integration is demonstrated and some malicious
+updates are attempted.
 
 The [repository tool](repository_tool.py) contains functions to generate all of
 the files needed to populate and manage a TUF repository.  The tool may either
