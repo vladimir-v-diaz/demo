@@ -471,7 +471,9 @@ $ echo 'bad_target' > 'repository/targets/file3.txt'
 
 We next reset our local timestamp (so that a new update is prompted), and 
 the target files previously downloaded.
-rm -rf 'repository/targets/" 'client/metadata/current/timestamp.json"
+```Bash
+rm -rf 'client/targets/" 'client/metadata/current/timestamp.json"
+```
 
 Now we can perform an update that should detect the invalid target file...
 ```Bash
