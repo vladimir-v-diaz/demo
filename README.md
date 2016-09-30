@@ -471,7 +471,7 @@ We next reset our local timestamp (so that a new update is prompted), and
 the target files previously downloaded.
 rm -rf 'repository/targets/" 'client/metadata/current/timestamp.json"
 
-# Now perform an update...
+Now we can perform an update that should detect the invalid target file...
 $ python basic_client.py --repo http://localhost:8001
 
 Error: No working mirror was found:
