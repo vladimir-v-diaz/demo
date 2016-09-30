@@ -465,7 +465,7 @@ from the repository that doesn't match what is listed in metadata.
 
 ### Arbitrary Package Attack ###
 ```Bash
-$ mv 'repository/targets/file3.txt 'repository/targets/file3.txt.backup'
+$ mv 'repository/targets/file3.txt' 'repository/targets/file3.txt.backup'
 $ echo 'bad_target' > 'repository/targets/file3.txt'
 ```
 
