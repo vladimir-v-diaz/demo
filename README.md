@@ -464,16 +464,18 @@ we show how the client is expected to reject a target file downloaded
 from the repository that doesn't match what is listed in metadata.
 
 ### Arbitrary Package Attack ###
+```Bash
 $ mv 'repository/targets/file3.txt 'repository/targets/file3.txt.backup'
 $ echo 'bad_target' > 'repository/targets/file3.txt'
+```
 
 We next reset our local timestamp (so that a new update is prompted), and 
 the target files previously downloaded.
 rm -rf 'repository/targets/" 'client/metadata/current/timestamp.json"
 
 Now we can perform an update that should detect the invalid target file...
+```Bash
 $ python basic_client.py --repo http://localhost:8001
-
 Error: No working mirror was found:
   localhost:8001: BadHashError()
-
+```
