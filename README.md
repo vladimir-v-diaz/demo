@@ -79,13 +79,16 @@ To start, a public and private RSA key pair is generated with the
 `generate_and_write_rsa_keypair()` function.  The keys generated will sign the
 repository metadata files created in upcoming sub-sections.
 
+
 #### Create RSA Keys ####
 ```python
 >>> from tuf.repository_tool import *
 
-# Generate and write the first of two root keys for the TUF repository.
-# The following function creates an RSA key pair, where the private key is saved to
-# "/path/to/root_key" and the public key to "/path/to/root_key.pub".
+# Generate and write the first of two root keys for the TUF repository.  The
+# following function creates an RSA key pair, where the private key is saved to
+# "keystore/root_key" and the public key to "keystore/root_key.pub".
+# The 'keystore' directory can be manually created in the current directory
+# to store the keys that we create in these examples.
 >>> generate_and_write_rsa_keypair("/path/to/root_key", bits=2048, password="password")
 
 # If the key length is unspecified, it defaults to 3072 bits. A length of less 
@@ -150,59 +153,60 @@ top-level roles, including itself.
 ```python
 # Continuing from the previous section . . .
 
-# Create a new Repository object that holds the file path to the repository and the four
-# top-level role objects (Root, Targets, Snapshot, Timestamp). Metadata files are created when
-# repository.write() is called.  The repository directory is created if it does not exist.
->>> repository = create_new_repository("/path/to/repository/")
+# Create a new Repository object that holds the file path to the repository and
+# the four top-level role objects (Root, Targets, Snapshot, Timestamp).
+# Metadata files are created when repository.write() is called.  The repository
+# directory is created if it does not exist.  You may see log messages
+# indicating any directories created.
+>>> repository = create_new_repository("repository/")
 
-# The Repository instance, 'repository', initially contains top-level Metadata objects.
-# Add one of the public keys, created in the previous section, to the root role.  Metadata is
-# considered valid if it is signed by the public key's corresponding private key.
+# The Repository instance, 'repository', initially contains top-level Metadata
+# objects.  Add one of the public keys, created in the previous section, to the
+# root role.  Metadata is considered valid if it is signed by the public key's
+# corresponding private key.
 >>> repository.root.add_verification_key(public_root_key)
 
-# Role keys (i.e., the key's keyid) may be queried.  Other attributes include: signing_keys, version,
-# signatures, expiration, threshold, delegations (Targets role), and compressions.
+# Role keys (i.e., the key's keyid) may be queried.  Other attributes include:
+# signing_keys, version, signatures, expiration, threshold, delegations
+# (Targets role), and compressions.
 >>> repository.root.keys
 ['b23514431a53676595922e955c2d547293da4a7917e3ca243a175e72bbf718df']
 
-# Add a second public key to the root role.  Although previously generated and saved to a file,
-# the second public key must be imported before it can added to a role.
->>> public_root_key2 = import_rsa_publickey_from_file("/path/to/root_key2.pub")
+# Add a second public key to the root role.  Although previously generated and
+# saved to a file, the second public key must be imported before it can added
+# to a role.
+>>> public_root_key2 = import_rsa_publickey_from_file("keystore/root_key2.pub")
 >>> repository.root.add_verification_key(public_root_key2)
 
-# Threshold of each role defaults to 1.   Users may change the threshold value, but repository_tool.py
-# validates thresholds and warns users.  Set the threshold of the root role to 2,
-# which means the root metadata file is considered valid if it contains at least two valid 
-# signatures.
+# Threshold of each role defaults to 1.   Maintainers may change the threshold
+# value, but repository_tool.py validates thresholds and warns users.  Set the
+# threshold of the root role to 2, which means the root metadata file is
+# considered valid if it contains at least two valid signatures.  We also
+# load the second private key, which hasn't been imported yet.
 >>> repository.root.threshold = 2
->>> private_root_key2 = import_rsa_privatekey_from_file("/path/to/root_key2", password="password")
+>>> private_root_key2 = import_rsa_privatekey_from_file("keystore/root_key2", password="password")
 
-# Load the root signing keys to the repository, which write() uses to sign the root metadata.
-# The load_signing_key() method SHOULD warn when the key is NOT explicitly allowed to
-# sign for it.
+# Load the root signing keys to the repository, which writeall() or write()
+# (write multiple roles, or a single role, to disk) uses to sign the root
+# metadata.  The load_signing_key() method SHOULD warn when the key is NOT
+# explicitly allowed to sign for it.
+
 >>> repository.root.load_signing_key(private_root_key)
 >>> repository.root.load_signing_key(private_root_key2)
 
-# Print the number of valid signatures and public / private keys of the
-# repository's metadata.
+# Print the roles that are "dirty" (i.e., that have not been written to disk
+# or have changed.
+>>> repository.dirty_roles()
+Dirty roles: ['root']
+
+# The status() function also prints the next role(s) that needs editing.
+# In this example, the 'targets' role needs editing next, since the root
+# role is now fully valid.
 >>> repository.status()
-'root' role contains 2 / 2 signatures.
 'targets' role contains 0 / 1 public keys.
 
->>> try:
-...   repository.write()
-
-# An exception is raised here by write() because the other top-level roles (targets, snapshot,
-# and timestamp) have not been configured with keys.  Another option is to call
-# repository.write_partial() and generate metadata that may contain an invalid threshold of
-# signatures, required public keys, etc.  write_partial() allows multiple repository maintainers to
-# independently sign metadata and generate them separately.  load_repository() can load partially
-# written metadata.
->>> except tuf.UnsignedMetadataError, e:
-...   print e 
-Not enough signatures for '/path/to/repository/metadata.staged/targets.json'
-
-# In the next section, update the other top-level roles and create a repository with valid metadata.
+# In the next section, update the other top-level roles and create a repository
+# with valid metadata.
 ```
 
 #### Create Timestamp, Snapshot, Targets
