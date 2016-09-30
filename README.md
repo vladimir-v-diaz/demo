@@ -383,7 +383,7 @@ Enter a password for the encrypted RSA key:
 >>> repository.targets("django").version = 2
 
 # Dirty roles?
-repository.dirty_roles()
+$ repository.dirty_roles()
 Dirty roles: ['timestamp', 'snapshot', 'targets', 'django']
 
 #  Write the metadata of "django", "root", "targets", "snapshot,
