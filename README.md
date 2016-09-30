@@ -424,40 +424,56 @@ updates saved on the client side.
 
 ```python
 >>> from tuf.repository_tool import *
->>> create_tuf_client_directory("/path/to/repository/", "/path/to/client/")
+>>> create_tuf_client_directory("repository/", "client/")
 ```
 
-`create_tuf_client_directory()` moves metadata from `/path/to/repository/metadata`
-to `/path/to/client/`.  The repository in `/path/to/repository/` may be the repository
-example created in the repository tool [README](README.md).
+`create_tuf_client_directory()` moves metadata from `repository/metadata` to
+`client/` in this example.  The repository in `repository/` may be the
+repository example created in the repository tool [README](README.md).
 
 
 ## Test TUF Locally ##
 Run the local TUF repository server.
 ```Bash
-$ cd "/path/to/repository/"; python -m SimpleHTTPServer 8001
+$ cd "repository/"; python -m SimpleHTTPServer 8001
 ```
 
-Retrieve targets from the TUF repository and save them to `/path/to/client/`.
-The `basic_client.py` module is available in `tuf/client/`.  In a different
-command-line prompt . . .
+Retrieve targets from the TUF repository and save them to `client/`.  The
+`basic_client.py` script is available in the 'scripts' directory.  In the
+following example, it is copied to the 'client' directory and executed from
+there.  In a different command-line prompt . . .
 ```Bash
-$ cd "/path/to/client/"
+$ cd "client/"
 $ ls
 metadata/
 
-$ basic_client.py --repo http://localhost:8001
-$ ls . targets/ targets/django/
+# Copy tuf/scripts/basic_client.py to current directory. 
+$ python basic_client.py --repo http://localhost:8001
+$ ls . targets/
 .:
 metadata  targets  tuf.log
 
 targets/:
-django  file1.txt  file2.txt
-
-targets/django/:
-file4.txt
+file1.txt  file2.txt file3.txt
 ```
 
 ## Blocking Malicious Updates ##
+TUF protects against a number of attacks, some of which include replay,
+arbitrary packages, mix and match attacks, etc.  In the next section
+we show how the client is expected to reject a target file downloaded
+from the repository that doesn't match what is listed in metadata.
 
 ### Arbitrary Package Attack ###
+$ mv 'repository/targets/file3.txt 'repository/targets/file3.txt.backup'
+$ echo 'bad_target' > 'repository/targets/file3.txt'
+
+We next reset our local timestamp (so that a new update is prompted), and 
+the target files previously downloaded.
+rm -rf 'repository/targets/" 'client/metadata/current/timestamp.json"
+
+# Now perform an update...
+$ python basic_client.py --repo http://localhost:8001
+
+Error: No working mirror was found:
+  localhost:8001: BadHashError()
+
