@@ -481,3 +481,15 @@ $ python basic_client.py --repo http://localhost:8001
 Error: No working mirror was found:
   localhost:8001: BadHashError()
 ```
+
+The log file (tuf.log) saved in the current working directory contains more
+detailed messages.
+```Bash
+...
+
+BadHashError: Observed hash ('f569179171c86aa9ed5e8b1d6c94dfd516123189568d239ed57d818946aaabe7') != expected hash (u'94f6e58bd04a4513b8301e75f40527cf7610c66d1960b26f6ac2e743e108bdac')
+
+[2016-09-30 15:06:44,704 UTC] [tuf.client.updater] [ERROR] [_get_file:1394@updater.py]
+
+Failed to update /file3.txt from all mirrors: {u'http://localhost:8001/targets/file3.txt': BadHashError()}
+```
