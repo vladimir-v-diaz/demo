@@ -1979,7 +1979,7 @@ def write_metadata_file(metadata, filename, version_number,
     os.link(written_filename, written_consistent_filename)
 
   else:
-    logger.info('Not linking a consistent filename for: ' + repr(written_filename))
+    logger.debug('Not linking a consistent filename for: ' + repr(written_filename))
 
   # Generate the compressed versions of 'metadata', if necessary.  A compressed
   # file may be written (without needing to write the uncompressed version) if
