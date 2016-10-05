@@ -17,7 +17,13 @@
   - [Wrap-up](#wrap-up)
 - [How to Perform an Update](#how-to-perform-an-update)
 - [Blocking Malicious Update](#blocking-malicious-update)
-  - [Arbitrary Package Attack](#arbitrary-package-attack) 
+  - [Arbitrary Package Attack](#arbitrary-package-attack)
+  - [Slow Retrieval Attack](#slow-retrieval-attack)
+  - [Rollback Attack](#rollback-attack)
+  - [Indefinite Freeze Attack](#indefinite-freeze-attack)
+  - [Endless Data Attack](#endless-Data-attack)
+  - [Compromised Key Attack](#compromised-key-attack)
+
 
 ## How to Create and Modify a TUF Repository ##
 
@@ -473,7 +479,9 @@ $ cd "client/"
 $ ls
 metadata/
 
-# Copy tuf/scripts/basic_client.py to current directory. 
+# Copy tuf/scripts/basic_client.py to current directory.  Note: You should
+# activate another "tufenv" virtualenv if using a new windows/tab, otherwise
+# the local Python installation would be incorrectly used.
 $ python basic_client.py --repo http://localhost:8001
 $ ls . targets/
 .:
@@ -485,21 +493,24 @@ file1.txt  file2.txt file3.txt
 
 ## Blocking Malicious Updates ##
 TUF protects against a number of attacks, some of which include replay,
-arbitrary packages, mix and match attacks, etc.  In the next section
-we show how the client is expected to reject a target file downloaded
-from the repository that doesn't match what is listed in metadata.
-
-https://github.com/theupdateframework/tuf/blob/develop/SECURITY.md
-
+arbitrary packages, and mix and match attacks.  In the next section we show how
+the client is expected to reject a target file downloaded from the repository
+that doesn't match what is listed in metadata.
 
 ### Arbitrary Package Attack ###
+In an arbitrary package attack, an  attacker installs anything they want on the
+client system. That is, an attacker can provide arbitrary files in response to
+download requests and the files will not be detected as illegitimate.  We begin
+this simulated arbitrary packag attack by creating a "malicious" target file
+that out client attempts to fetch.
+
 ```Bash
 $ mv 'repository/targets/file3.txt' 'repository/targets/file3.txt.backup'
 $ echo 'bad_target' > 'repository/targets/file3.txt'
 ```
 
 We next reset our local timestamp (so that a new update is prompted), and 
-the target files previously downloaded.
+the target files previously downloaded by the client.
 ```Bash
 rm -rf "client/targets/" "client/metadata/current/timestamp.json"
 ```
@@ -524,7 +535,18 @@ Failed to update /file3.txt from all mirrors: {u'http://localhost:8001/targets/f
 ```
 
 ### Slow Retrieval Attack ###
-TODO
+In a slow retrieval attack, an attacker responds to clients with a very slow
+stream of data that essentially results in the client never continuing the
+update process.  For this example, we simulate a slow retrieval attack by
+spawning a server that serves our update client data at a slow rate.  TUF
+should not be vulnerable to this attack and raise and the framework should
+raise an exception or error when it detects when a malicious server or attack
+is serving it data at a slow enough rate.
+
+```Bash
+$ python slow_retrieval_server.py 8002 mode_2
+```
+
 
 ### Rollback Attack ###
 TODO
@@ -535,5 +557,5 @@ TODO
 ### Endless Data Attack ###
 TODO
 
-### Compromised Key (a threshold of signatures not met) ###
+### Compromised Key Attack ###
 TODO
