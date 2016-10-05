@@ -3,6 +3,7 @@
 ## Table of Contents ##
 - [How to Create and Modify a TUF Repository](#how-to-create-and-modify-a-tuf-repository)
   - [Overview](#overview)
+  - [Virtual Machine and Installation Instructions](#virtual_machine_and_installation_instructions)
   - [Keys](#keys)
     - [Create RSA Keys](#create-rsa-keys)
     - [Import RSA Keys](#import-rsa-keys)
