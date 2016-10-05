@@ -68,6 +68,30 @@ performed to extend the default roles of the repository.  By the end, a fully
 populated TUF repository is generated that can be used to securely download
 updates.
 
+### Virtual Machine and Installation Instructions ###
+A VirtualBox [appliance](https://en.wikipedia.org/wiki/Virtual_appliance) is
+made available that can be used to reproduce these demo instructions.  The
+appliance has all the requisite libraries and programs pre-installed.  All the
+user has to do is activate the [Virtualenv
+enviroment](http://docs.python-guide.org/en/latest/dev/virtualenvs/). 
+The Virtual Machine can be downloaded
+[here](https://drive.google.com/file/d/0BxIzRxMoQ-57RnFxNmN4cHFxWk0/view?usp=sharing).
+
+The Virtualenv enviroment has everything installed and separated from the OS's
+Python installation.
+
+Activate the 'tufenv' environment:
+
+```Bash
+$ cd ~/projects/demo_docker_summit/
+$ source tufenv/bin/activate
+
+# You can now create a TUF repository according to the demo document.
+$ cd demo/demo_repository/
+$ python
+>>> from tuf.repository_tool import *
+```
+
 ### Keys ###
 The repository tool supports multiple public-key algorithms, such as
 [RSA](https://en.wikipedia.org/wiki/RSA_%28cryptosystem%29) and
@@ -77,6 +101,7 @@ The repository tool supports multiple public-key algorithms, such as
 To start, a public and private RSA key pair is generated with the
 `generate_and_write_rsa_keypair()` function.  The keys generated will sign the
 repository metadata files created in upcoming sub-sections.
+
 
 
 #### Create RSA Keys ####
@@ -463,6 +488,9 @@ arbitrary packages, mix and match attacks, etc.  In the next section
 we show how the client is expected to reject a target file downloaded
 from the repository that doesn't match what is listed in metadata.
 
+https://github.com/theupdateframework/tuf/blob/develop/SECURITY.md
+
+
 ### Arbitrary Package Attack ###
 ```Bash
 $ mv 'repository/targets/file3.txt' 'repository/targets/file3.txt.backup'
@@ -493,3 +521,18 @@ BadHashError: Observed hash ('f569179171c86aa9ed5e8b1d6c94dfd516123189568d239ed5
 
 Failed to update /file3.txt from all mirrors: {u'http://localhost:8001/targets/file3.txt': BadHashError()}
 ```
+
+### Slow Retrieval Attack ###
+TODO
+
+### Rollback Attack ###
+TODO
+
+### Indefinite Freeze Attack ###
+TODO
+
+### Endless Data Attack ###
+TODO
+
+### Compromised Key (a threshold of signatures not met) ###
+TODO
