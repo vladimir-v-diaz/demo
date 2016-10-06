@@ -703,7 +703,43 @@ downloaded the appended data.
 An attacker who is able to compromise a single key or less than a given
 threshold of keys can compromise clients. This includes relying on a single
 online key (such as only being protected by SSL) or a single offline key (such
-as most software update systems use to sign files). 
+as most software update systems use to sign files).  In this example, we
+attempt to sign a role file with a less-than-a-threshold number of keys.  The
+single key (suppose this is a compromised key) used for signing is to
+demonstrate that roles must be signed with the total number of keys required
+for the role.  In order to compromise a role, an attacker would have to
+compromise the full set of keys.  This approach of requiring a threshold
+of signatures provides compromise resilience.
+
+Let's attempt to sign a new root file with a less-than-threshold number of
+keys.  The client should reject the partially signed root file served by the
+repository (or imagine it is a compromised repository).
+
+```Bash
+$ python
+>>> from tuf.repository_tool import *
+>>> repository = load_repository('repository')
+>>> private_root_key = import_rsa_privatekey_from_file("keystore/root_key", password="password")
+>>> repository.root.load_signing_key(private_root_key)
+
+>>> private_snapshot_key = import_rsa_privatekey_from_file("keystore/snapshot_key", password="password")
+>>> repository.snapshot.load_signing_key(private_snapshot_key)
+
+>>> private_timestamp_key = import_rsa_privatekey_from_file("keystore/timestamp_key", password="password")
+>>> repository.timestamp.load_signing_key(private_timestamp_key)
+
+>>> repository.writeall()
+
+$ cp repository/metadata.staged/* repository/metadata
+```
+
+The client should not attempt to refresh the top-level metadata and thus the
+partially written root.json.
+
+```Bash
+$ python basic_client.py --repo http://localhost:8001
+
+```
 
 
 ### Slow Retrieval Attack ###
@@ -711,14 +747,15 @@ In a slow retrieval attack, an attacker responds to clients with a very slow
 stream of data that essentially results in the client never continuing the
 update process.  For this example, we simulate a slow retrieval attack by
 spawning a server that serves our update client data at a slow rate.  TUF
-should not be vulnerable to this attack and raise and the framework should
-raise an exception or error when it detects when a malicious server or attack
-is serving it data at a slow enough rate.
+should not be vulnerable to this attack and the framework should raise an
+exception or error when it detects when a malicious server or attack is serving
+it data at a slow enough rate.
 
 ```Bash
 $ python slow_retrieval_server.py 8002 mode_2
 ```
 
+## Conclusion ##
 These are just some of the attacks TUF protects against.  For more attacks
 and upater weaknesses, please see the [Security](https://github.com/theupdateframework/tuf/blob/develop/SECURITY.md)
 page.  This concludes the demo.
