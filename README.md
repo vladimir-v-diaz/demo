@@ -78,16 +78,18 @@ updates.
 ### Virtual Machine and Installation Instructions ###
 A VirtualBox [appliance](https://en.wikipedia.org/wiki/Virtual_appliance) is
 made available that can be used to reproduce these demo instructions.  The
-appliance has all the requisite libraries and programs pre-installed.  All the
-user has to do is activate the [Virtualenv
-enviroment](http://docs.python-guide.org/en/latest/dev/virtualenvs/). 
-The Virtual Machine can be downloaded
+appliance has all the requisite libraries and programs pre-installed, and has
+everything separated from the OS's Python installation.  All the user has to do
+is activate the [Virtualenv
+enviroment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).  The
+Virtual Machine can be downloaded
 [here](https://drive.google.com/file/d/0BxIzRxMoQ-57RnFxNmN4cHFxWk0/view?usp=sharing).
+The account credentials to log on to the Linux installation on the virtual
+machine are
+user: tuf
+password: password
 
-The Virtualenv enviroment has everything installed and separated from the OS's
-Python installation.
-
-Activate the 'tufenv' environment:
+You can activate the 'tufenv' environment as follows:
 
 ```Bash
 $ cd ~/projects/demo_docker_summit/
@@ -534,6 +536,27 @@ BadHashError: Observed hash ('f569179171c86aa9ed5e8b1d6c94dfd516123189568d239ed5
 Failed to update /file3.txt from all mirrors: {u'http://localhost:8001/targets/file3.txt': BadHashError()}
 ```
 
+### Rollback Attack ###
+An attacker presents a software update system with older files than those the
+client has already seen, causing the client to use files older than those the
+client knows about.
+
+### Indefinite Freeze Attack ###
+An attacker continues to present a software update system with the same files
+the client has already seen. The result is that the client does not know that
+new files are available.
+
+### Endless Data Attack ###
+An attacker responds to a file download request with an endless stream of data,
+causing harm to clients (e.g. a disk partition filling up or memory
+exhaustion).
+
+### Compromised Key Attack ###
+An attacker who is able to compromise a single key or less than a given
+threshold of keys can compromise clients. This includes relying on a single
+online key (such as only being protected by SSL) or a single offline key (such
+as most software update systems use to sign files). 
+
 ### Slow Retrieval Attack ###
 In a slow retrieval attack, an attacker responds to clients with a very slow
 stream of data that essentially results in the client never continuing the
@@ -546,16 +569,3 @@ is serving it data at a slow enough rate.
 ```Bash
 $ python slow_retrieval_server.py 8002 mode_2
 ```
-
-
-### Rollback Attack ###
-TODO
-
-### Indefinite Freeze Attack ###
-TODO
-
-### Endless Data Attack ###
-TODO
-
-### Compromised Key Attack ###
-TODO
