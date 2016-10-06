@@ -1174,8 +1174,7 @@ class Updater(object):
           # Verify that the version number of the locally stored
           # 'timestamp.json', if available, is less than what was downloaded.
           # Otherwise, accept the new timestamp with version number
-          # 'version_downloaded'.
-          logger.info('metadata_role: ' + repr(metadata_role)) 
+          # 'version_downloaded'. 
           try:
             current_version = \
               self.metadata['current'][metadata_role]['version']
