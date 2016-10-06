@@ -608,8 +608,6 @@ $ python
 Dirty roles: [u'timestamp']
 >>> private_timestamp_key = import_rsa_privatekey_from_file("keystore/timestamp_key")
 Enter a password for the encrypted RSA file: 
->>> private_timestamp_key = import_rsa_privatekey_from_file("keystore/timestamp_key")
-Enter a password for the encrypted RSA key: 
 >>> repository.timestamp.load_signing_key(private_timestamp_key)
 >>> repository.write('timestamp')
 
@@ -642,13 +640,63 @@ Error: No working mirror was found:
   u'localhost:8001': ReplayedMetadataError()
 ```
 
-The tuf.log file contains more information about the replay error.
+The tuf.log file contains more information about the replay error.  Please
+reset the timestamp.json to the latest version, which can be found in the
+metadata.staged directory.
+
+```Bash
+$ cp repository/metadata.staged/timestamp.json repository/metadata
+```
 
 
 ### Endless Data Attack ###
-An attacker responds to a file download request with an endless stream of data,
-causing harm to clients (e.g., a disk partition filling up or memory
-exhaustion).
+In an endless data attack, an attacker responds to a file download request with
+an endless stream of data, causing harm to clients (e.g., a disk partition
+filling up or memory exhaustion).  In this simulated attack, we attach
+extra data to one of the target files available on the repository.
+The client should only download the exact number bytes it expected for
+a requested target file.
+
+```Bash
+$ python -c "print 'a' * 1000" >> repository/targets/file1.txt
+```
+
+Now delete the local metadata and target files on the client side so
+that remote metadata and target files are downloaded again.
+```Bash
+$ rm -rf repository/targets/
+$ rm repository/metadata/current/snapshot.json* repository/metadata/current/timestamp.json*
+```
+
+Lastly, perform an update to verify that the file1.txt is downloaded up to the
+expected size, and no more.  The target file available on the repository
+does contain more data than expected, though.
+
+```Bash
+$ python basic_client.py --repo http://localhost:8001 
+```
+
+At this point, part of the file1.txt file should have been fetched.  That is,
+up to 31 bytes of it should have been fetched, and the rest of the maliciously
+appended data ignored.  If we inspect the logger, we'd disover the following:
+
+```Bash
+[2016-10-06 21:37:39,092 UTC] [tuf.download] [INFO] [_download_file:235@download.py]
+Downloading: u'http://localhost:8001/targets/file1.txt'                         
+                                                                                 
+[2016-10-06 21:37:39,145 UTC] [tuf.download] [INFO] [_check_downloaded_length:610@download.py]
+Downloaded 31 bytes out of the expected 31 bytes.                               
+                                                                                 
+[2016-10-06 21:37:39,145 UTC] [tuf.client.updater] [INFO] [_get_file:1372@updater.py]
+Not decompressing http://localhost:8001/targets/file1.txt                       
+                                                                                 
+[2016-10-06 21:37:39,145 UTC] [tuf.client.updater] [INFO] [_check_hashes:778@updater.py]
+The file's sha256 hash is correct: 65b8c67f51c993d898250f40aa57a317d854900b3a04895464313e48785440da
+```
+
+Indeed, the sha256 sum of the first 31 bytes of the file1.txt available
+on the repository should match to what is trusted.  The client did not
+downloaded the appended data.
 
 
 ### Compromised Key Attack ###
