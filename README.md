@@ -640,7 +640,7 @@ Error: No working mirror was found:
   u'localhost:8001': ReplayedMetadataError()
 ```
 
-The tuf.log file contains more information about the replay error.  Please
+The tuf.log file contains more information about the Rollback error.  Please
 reset the timestamp.json to the latest version, which can be found in the
 metadata.staged directory.
 
