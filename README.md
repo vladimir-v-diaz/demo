@@ -101,6 +101,11 @@ $ python
 >>> from tuf.repository_tool import *
 ```
 
+It would also be a good idea at this time to verify that the Git repository
+(~/projects/demo_docker_summit/demo)  is up-to-date.  One can update it by
+executing "git pull origin master" on the command line.
+
+
 ### Keys ###
 The repository tool supports multiple public-key algorithms, such as
 [RSA](https://en.wikipedia.org/wiki/RSA_%28cryptosystem%29) and
@@ -110,7 +115,6 @@ The repository tool supports multiple public-key algorithms, such as
 To start, a public and private RSA key pair is generated with the
 `generate_and_write_rsa_keypair()` function.  The keys generated will sign the
 repository metadata files created in upcoming sub-sections.
-
 
 
 #### Create RSA Keys ####
@@ -536,26 +540,31 @@ BadHashError: Observed hash ('f569179171c86aa9ed5e8b1d6c94dfd516123189568d239ed5
 Failed to update /file3.txt from all mirrors: {u'http://localhost:8001/targets/file3.txt': BadHashError()}
 ```
 
+
 ### Rollback Attack ###
 An attacker presents a software update system with older files than those the
 client has already seen, causing the client to use files older than those the
 client knows about.
+
 
 ### Indefinite Freeze Attack ###
 An attacker continues to present a software update system with the same files
 the client has already seen. The result is that the client does not know that
 new files are available.
 
+
 ### Endless Data Attack ###
 An attacker responds to a file download request with an endless stream of data,
-causing harm to clients (e.g. a disk partition filling up or memory
+causing harm to clients (e.g., a disk partition filling up or memory
 exhaustion).
+
 
 ### Compromised Key Attack ###
 An attacker who is able to compromise a single key or less than a given
 threshold of keys can compromise clients. This includes relying on a single
 online key (such as only being protected by SSL) or a single offline key (such
 as most software update systems use to sign files). 
+
 
 ### Slow Retrieval Attack ###
 In a slow retrieval attack, an attacker responds to clients with a very slow
