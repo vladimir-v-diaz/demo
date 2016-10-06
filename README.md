@@ -18,11 +18,12 @@
 - [How to Perform an Update](#how-to-perform-an-update)
 - [Blocking Malicious Update](#blocking-malicious-update)
   - [Arbitrary Package Attack](#arbitrary-package-attack)
-  - [Slow Retrieval Attack](#slow-retrieval-attack)
   - [Rollback Attack](#rollback-attack)
   - [Indefinite Freeze Attack](#indefinite-freeze-attack)
   - [Endless Data Attack](#endless-Data-attack)
   - [Compromised Key Attack](#compromised-key-attack)
+  - [Slow Retrieval Attack](#slow-retrieval-attack)
+- [Conclusion](#conclusion)
 
 
 ## How to Create and Modify a TUF Repository ##
@@ -757,5 +758,5 @@ $ python slow_retrieval_server.py 8002 mode_2
 
 ## Conclusion ##
 These are just some of the attacks TUF protects against.  For more attacks
-and upater weaknesses, please see the [Security](https://github.com/theupdateframework/tuf/blob/develop/SECURITY.md)
+and updater weaknesses, please see the [Security](https://github.com/theupdateframework/tuf/blob/develop/SECURITY.md)
 page.  This concludes the demo.
