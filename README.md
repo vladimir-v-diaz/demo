@@ -582,10 +582,67 @@ Note: Reset the date to continue with the rest of the attacks.
 
 
 ### Rollback Attack ###
-An attacker presents a software update system with older files than those the
-client has already seen, causing the client to use files older than those the
-client knows about.
+In a rollback attack, an attacker presents a software update system with older
+files than those the client has already seen, causing the client to use files
+older than those the client knows about.  We begin this attack example by
+saving the current version of the Timestamp file available on the repository.
+This saved file will later be served to the client to see if it is rejected.
+The client should not accept versions of metadata that is older than 
+previously trusted.
 
+Navigate to the directory containing the server's files and save the current
+timestamp.json to a temporary location:
+```Bash
+$ cp repository/metadata/timestamp.json /tmp
+```
+
+We should now generate a new Timestamp file.
+```Bash
+$ python
+>>> from tuf.repository_tool import * 
+>>> repository = load_repository('repository')
+>>> repository.timestamp.version
+1
+>>> repository.timestamp.version = 2
+>>> repository.dirty_roles()
+Dirty roles: [u'timestamp']
+>>> private_timestamp_key = import_rsa_privatekey_from_file("keystore/timestamp_key")
+Enter a password for the encrypted RSA file: 
+>>> private_timestamp_key = import_rsa_privatekey_from_file("keystore/timestamp_key")
+Enter a password for the encrypted RSA key: 
+>>> repository.timestamp.load_signing_key(private_timestamp_key)
+>>> repository.write('timestamp')
+
+$ cp repository/metadata.staged/* repository/metadata
+```
+
+Now start the HTTP server from the server's directory containing the
+'repository' subdirectory.
+```Bash
+$ python -m SimpleHTTPServer 8001
+```
+
+And perform an update so that the client retrieves the updated timestamp.json.
+```Bash
+$ python basic_client.py --repo http://localhost:8001
+```
+
+Finally, move the previous timestamp.json file to the current live repository
+and have the client try to download the outdated version.  The client should
+reject it.
+```Bash
+$ cp /tmp/timestamp.json repository/metadata/
+$ python -m SimpleHTTPServer 8001
+```
+
+On the client side, perform an update...
+```Bash
+$ python basic_client.py --repo http://localhost:8001
+Error: No working mirror was found:
+  u'localhost:8001': ReplayedMetadataError()
+```
+
+The tuf.log file contains more information about the replay error.
 
 
 ### Endless Data Attack ###
@@ -613,3 +670,7 @@ is serving it data at a slow enough rate.
 ```Bash
 $ python slow_retrieval_server.py 8002 mode_2
 ```
+
+These are just some of the attacks TUF protects against.  For more attacks
+and upater weaknesses, please see the [Security](https://github.com/theupdateframework/tuf/blob/develop/SECURITY.md)
+page.  This concludes the demo.
