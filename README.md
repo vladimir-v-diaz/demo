@@ -709,37 +709,46 @@ attempt to sign a role file with a less-than-a-threshold number of keys.  The
 single key (suppose this is a compromised key) used for signing is to
 demonstrate that roles must be signed with the total number of keys required
 for the role.  In order to compromise a role, an attacker would have to
-compromise the full set of keys.  This approach of requiring a threshold
+compromise the full set of keys.  This approach of requiring a threshold number
 of signatures provides compromise resilience.
 
-Let's attempt to sign a new root file with a less-than-threshold number of
-keys.  The client should reject the partially signed root file served by the
-repository (or imagine it is a compromised repository).
+Let's attempt to sign a new snapshot file with a less-than-threshold number of
+keys.  The client should reject the partially signed snapshot file served by
+the repository (or imagine that it is a compromised repository).
 
 ```Bash
 $ python
 >>> from tuf.repository_tool import *
 >>> repository = load_repository('repository')
+>>> repository.root.version = 8
 >>> private_root_key = import_rsa_privatekey_from_file("keystore/root_key", password="password")
 >>> repository.root.load_signing_key(private_root_key)
+>>> private_root_key2 = import_rsa_privatekey_from_file("keystore/root_key2", password="password")
+>>> repository.root.load_signing_key(private_root_key2)
 
+>>> repository.snapshot.version = 8
+>>> repository.snapshot.threshold = 2
 >>> private_snapshot_key = import_rsa_privatekey_from_file("keystore/snapshot_key", password="password")
 >>> repository.snapshot.load_signing_key(private_snapshot_key)
 
+>>> repository.timestamp.version = 8
 >>> private_timestamp_key = import_rsa_privatekey_from_file("keystore/timestamp_key", password="password")
 >>> repository.timestamp.load_signing_key(private_timestamp_key)
 
->>> repository.writeall()
+>>> repository.write('root')
+>>> repository.write('snapshot')
+>>> repository.write('timestamp')
 
 $ cp repository/metadata.staged/* repository/metadata
 ```
 
 The client should not attempt to refresh the top-level metadata and thus the
-partially written root.json.
+partially written snapshot.json.
 
 ```Bash
 $ python basic_client.py --repo http://localhost:8001
-
+Error: No working mirror was found:
+  u'localhost:8001': BadSignatureError()
 ```
 
 
