@@ -88,8 +88,8 @@ The account credentials to log on to the Linux installation on the virtual
 machine are:
 
 ```
-**user**: tuf
-**password**: password
+user: tuf
+password: password
 ```
 
 You can activate the 'tufenv' environment as follows:
@@ -536,18 +536,14 @@ detailed messages.
 ```Bash
 ...
 
-BadHashError: Observed hash ('f569179171c86aa9ed5e8b1d6c94dfd516123189568d239ed57d818946aaabe7') != expected hash (u'94f6e58bd04a4513b8301e75f40527cf7610c66d1960b26f6ac2e743e108bdac')
+BadHashError: Observed
+hash ('f569179171c86aa9ed5e8b1d6c94dfd516123189568d239ed57d818946aaabe7') !=
+expected hash (u'94f6e58bd04a4513b8301e75f40527cf7610c66d1960b26f6ac2e743e108bdac')
 
 [2016-09-30 15:06:44,704 UTC] [tuf.client.updater] [ERROR] [_get_file:1394@updater.py]
 
 Failed to update /file3.txt from all mirrors: {u'http://localhost:8001/targets/file3.txt': BadHashError()}
 ```
-
-
-### Rollback Attack ###
-An attacker presents a software update system with older files than those the
-client has already seen, causing the client to use files older than those the
-client knows about.
 
 
 ### Indefinite Freeze Attack ###
@@ -581,6 +577,15 @@ $ python basic_client.py --repo http://localhost:8001
 Error: No working mirror was found:
   u'localhost:8001': ExpiredMetadataError(u"Metadata u'root' expired on Tue Jan  1 00:00:00 2030 (UTC).",)
 ```
+
+Note: Reset the date to continue with the rest of the attacks.
+
+
+### Rollback Attack ###
+An attacker presents a software update system with older files than those the
+client has already seen, causing the client to use files older than those the
+client knows about.
+
 
 
 ### Endless Data Attack ###
