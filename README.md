@@ -16,11 +16,11 @@
   - [Delegations](#delegations)
   - [Wrap-up](#wrap-up)
 - [How to Perform an Update](#how-to-perform-an-update)
-- [Blocking Malicious Update](#blocking-malicious-update)
+- [Blocking Malicious Updates](#blocking-malicious-updates)
   - [Arbitrary Package Attack](#arbitrary-package-attack)
   - [Rollback Attack](#rollback-attack)
   - [Indefinite Freeze Attack](#indefinite-freeze-attack)
-  - [Endless Data Attack](#endless-Data-attack)
+  - [Endless Data Attack](#endless-data-attack)
   - [Compromised Key Attack](#compromised-key-attack)
   - [Slow Retrieval Attack](#slow-retrieval-attack)
 - [Conclusion](#conclusion)
@@ -502,17 +502,18 @@ file1.txt  file2.txt file3.txt
 ```
 
 ## Blocking Malicious Updates ##
-TUF protects against a number of attacks, some of which include replay,
-arbitrary packages, and mix and match attacks.  In the next section we show how
-the client is expected to reject a target file downloaded from the repository
-that doesn't match what is listed in metadata.
+TUF protects against a number of attacks, some of which include rollback,
+arbitrary package, and mix and match attacks.  We begin this section on
+blocking malicious updates by demonstrating how the client rejects a
+target file downloaded from the repository that doesn't match what is
+listed in metadata.
 
 ### Arbitrary Package Attack ###
 In an arbitrary package attack, an  attacker installs anything they want on the
 client system. That is, an attacker can provide arbitrary files in response to
-download requests and the files will not be detected as illegitimate.  We begin
-this simulated arbitrary packag attack by creating a "malicious" target file
-that out client attempts to fetch.
+download requests and the files will not be detected as illegitimate.  We
+simulate an arbitrary packag attack by creating a "malicious" target file
+that our client attempts to fetch.
 
 ```Bash
 $ mv 'repository/targets/file3.txt' 'repository/targets/file3.txt.backup'
@@ -525,15 +526,15 @@ the target files previously downloaded by the client.
 rm -rf "client/targets/" "client/metadata/current/timestamp.json"
 ```
 
-Now we can perform an update that should detect the invalid target file...
+The client now performs an update and should detect the invalid target file...
 ```Bash
 $ python basic_client.py --repo http://localhost:8001
 Error: No working mirror was found:
   localhost:8001: BadHashError()
 ```
 
-The log file (tuf.log) saved in the current working directory contains more
-detailed messages.
+The log file (tuf.log) saved to the current working directory contains more
+information on the update procedure and the cause of the BadHashError.
 ```Bash
 ...
 
