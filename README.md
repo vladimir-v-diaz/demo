@@ -64,7 +64,7 @@ addition to the repository object, where the majority of changes are made, the
 repository tool provides functions to generate and persist cryptographic keys.
 The framework utilizes cryptographic keys to sign and verify metadata files.
 
-To begin the demo, cryptographic keys are generated.  However, fefore metadata
+To begin the demo, cryptographic keys are generated.  However, before metadata
 files can be validated by clients and target files fetched in a secure manner,
 public keys must be pinned to particular metadata roles and signatures generated
 by the private keys.  After covering keys, the four required top-level roles are
@@ -512,7 +512,7 @@ listed in metadata.
 In an arbitrary package attack, an  attacker installs anything they want on the
 client system. That is, an attacker can provide arbitrary files in response to
 download requests and the files will not be detected as illegitimate.  We
-simulate an arbitrary packag attack by creating a "malicious" target file
+simulate an arbitrary package attack by creating a "malicious" target file
 that our client attempts to fetch.
 
 ```Bash
@@ -654,7 +654,7 @@ $ cp repository/metadata.staged/timestamp.json repository/metadata
 ### Endless Data Attack ###
 In an endless data attack, an attacker responds to a file download request with
 an endless stream of data, causing harm to clients (e.g., a disk partition
-filling up or memory exhaustion).  In this simulated attack, we attach
+filling up or memory exhaustion).  In this simulated attack, we append
 extra data to one of the target files available on the repository.
 The client should only download the exact number of bytes it expects for
 a requested target file (according to what is listed in trusted metadata).
@@ -696,7 +696,7 @@ Not decompressing http://localhost:8001/targets/file1.txt
 The file's sha256 hash is correct: 65b8c67f51c993d898250f40aa57a317d854900b3a04895464313e48785440da
 ```
 
-Indeed, the sha256 sum of the first 31 bytes of the file1.txt available
+Indeed, the sha256 sum of the first 31 bytes of the "file1.txt" available
 on the repository should match to what is trusted.  The client did not
 downloaded the appended data.
 
