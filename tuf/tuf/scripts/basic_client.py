@@ -124,7 +124,7 @@ def update_client(repository_mirror):
   # Refresh the repository's top-level roles, store the target information for
   # all the targets tracked, and determine which of these targets have been
   # updated.
-  updater.refresh()
+  updater.refresh(unsafely_update_root_if_necessary=False)
   all_targets = updater.all_targets()
   updated_targets = updater.updated_targets(all_targets, destination_directory)
 
