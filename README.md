@@ -706,7 +706,7 @@ An attacker who is able to compromise a single key or less than a given
 threshold of keys can compromise clients. This includes relying on a single
 online key (such as only being protected by SSL) or a single offline key (such
 as most software update systems use to sign files).  In this example, we
-attempt to sign a role file with a less-than-a-threshold number of keys.  The
+attempt to sign a role file with less-than-a-threshold number of keys.  The
 single key (suppose this is a compromised key) used for signing is to
 demonstrate that roles must be signed with the total number of keys required
 for the role.  In order to compromise a role, an attacker would have to
@@ -743,7 +743,7 @@ $ python
 $ cp repository/metadata.staged/* repository/metadata
 ```
 
-The client should not attempt to refresh the top-level metadata and thus the
+The client should not attempt to refresh the top-level metadata and the
 partially written snapshot.json.
 
 ```Bash
@@ -763,7 +763,7 @@ exception or error when it detects that a malicious server is serving it data
 at a slow enough rate.
 
 We first spawn a server that slowly streams data to a client request.  The
-'slow_retrieval_server.py module can be copied over to the '../demo_repository'
+'slow_retrieval_server.py' module can be copied over to the '../demo_repository'
 directory from which to launch it.
 
 ```Bash
@@ -782,11 +782,11 @@ Error: No working mirror was found:
   u'localhost:8002': SlowRetrievalError()
 ```
 
-The framework should detect to the attack and raise a SlowRetrievalError
+The framework should detect the attack and raise a SlowRetrievalError
 exception to the client application.
 
 
 ## Conclusion ##
-These are just some of the attacks TUF protects against.  For more attacks
+These are just some of the attacks that TUF provides protection against.  For more attacks
 and updater weaknesses, please see the [Security](https://github.com/theupdateframework/tuf/blob/develop/SECURITY.md)
 page.  This concludes the demo.
