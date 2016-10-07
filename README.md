@@ -757,13 +757,33 @@ In a slow retrieval attack, an attacker responds to clients with a very slow
 stream of data that essentially results in the client never continuing the
 update process.  For this example, we simulate a slow retrieval attack by
 spawning a server that serves our update client data at a slow rate.  TUF
-should not be vulnerable to this attack and the framework should raise an
-exception or error when it detects when a malicious server or attack is serving
-it data at a slow enough rate.
+should not be vulnerable to this attack, and the framework should raise an
+exception or error when it detects that a malicious server is serving it data
+at a slow enough rate.
+
+We first spawn a server that slowly streams data to a client request.  The
+'slow_retrieval_server.py module can be copied over to the '../demo_repository'
+directory from which to launch it.
 
 ```Bash
 $ python slow_retrieval_server.py 8002 mode_2
 ```
+
+The client may now make a request to the slow server on port 8002.  However,
+before doing so, we'll need to reduce (for the purposes of this demo) the
+minimum average download rate allowed.  Open the '.../demo/tuf/tuf/conf.py'
+file and set MIN_AVERAGE_DOWNLOAD_SPEED to 1.  This should make it so
+that client correctly detects the slow retrieval server's delayed streaming.
+
+```Bash
+$ python basic_client.py --verbose 1 --repo http://localhost:8002
+Error: No working mirror was found:
+  u'localhost:8002': SlowRetrievalError()
+```
+
+The framework should detect to the attack and raise a SlowRetrievalError
+exception to the client application.
+
 
 ## Conclusion ##
 These are just some of the attacks TUF protects against.  For more attacks
