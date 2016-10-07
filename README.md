@@ -564,7 +564,7 @@ $ python basic_client.py --repo http://localhost:8001
 ```
 
 According to the logger (`tuf.log` file in the current working directory),
-everything appears to be up-to-date.  The remove server should also show that
+everything appears to be up-to-date.  The remote server should also show that
 the client retrieved only the timestamp.json file.  Let's suppose now that an
 attacker continues to feed our client the same stale metadata.  If we were to
 move the time to a future date that would cause metadata to expire, the TUF
@@ -598,7 +598,7 @@ timestamp.json to a temporary location:
 $ cp repository/metadata/timestamp.json /tmp
 ```
 
-We should now generate a new Timestamp file.
+We should now generate a new Timestamp file on the repository side.
 ```Bash
 $ python
 >>> from tuf.repository_tool import * 
@@ -629,7 +629,7 @@ $ python basic_client.py --repo http://localhost:8001
 
 Finally, move the previous timestamp.json file to the current live repository
 and have the client try to download the outdated version.  The client should
-reject it.
+reject it!
 ```Bash
 $ cp /tmp/timestamp.json repository/metadata/
 $ python -m SimpleHTTPServer 8001
@@ -644,7 +644,7 @@ Error: No working mirror was found:
 
 The tuf.log file contains more information about the Rollback error.  Please
 reset the timestamp.json to the latest version, which can be found in the
-metadata.staged directory.
+'repository/metadata.staged' subdirectory.
 
 ```Bash
 $ cp repository/metadata.staged/timestamp.json repository/metadata
@@ -656,8 +656,8 @@ In an endless data attack, an attacker responds to a file download request with
 an endless stream of data, causing harm to clients (e.g., a disk partition
 filling up or memory exhaustion).  In this simulated attack, we attach
 extra data to one of the target files available on the repository.
-The client should only download the exact number bytes it expected for
-a requested target file.
+The client should only download the exact number of bytes it expects for
+a requested target file (according to what is listed in trusted metadata).
 
 ```Bash
 $ python -c "print 'a' * 1000" >> repository/targets/file1.txt
@@ -678,8 +678,8 @@ does contain more data than expected, though.
 $ python basic_client.py --repo http://localhost:8001 
 ```
 
-At this point, part of the file1.txt file should have been fetched.  That is,
-up to 31 bytes of it should have been fetched, and the rest of the maliciously
+At this point, part of the "file1.txt" file should have been fetched.  That is,
+up to 31 bytes of it should have been downloaded, and the rest of the maliciously
 appended data ignored.  If we inspect the logger, we'd disover the following:
 
 ```Bash
